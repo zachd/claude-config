@@ -15,15 +15,6 @@ allowed-tools: Bash, Read, Write, Agent, AskUserQuestion, TaskCreate, TaskUpdate
 - **Arg is a path to an existing `.md` spec file** → skip Phase 0; start at Step 1 (the spec is already approved).
 - **Arg is a Jira ticket (URL/KEY), a freeform idea, or empty** → run **Phase 0** to produce and get approval on a spec file, then continue to Step 1.
 
-## Greenfield — when the ticket needs a brand-new repo
-
-When the spec/ticket calls for a **new standalone repo** (a new tool/app/site, "its own repo", no existing `REPO_ROOT`), the steps below assume things that don't exist yet (a CLAUDE.md, a base branch, a remote). Stand up the foundation **before** Phase 0:
-
-1. **Settle foundational decisions with the user first.** There's no codebase to ground in, so the stack/architecture/host that Phase 0 would normally derive are the user's to decide — resolve them with AskUserQuestion up front; they become the spec's Approach (so the spec subagent doesn't re-litigate them).
-2. **Confirm the repo name**, then create the local repo (`git init -b <base>`) with a scaffold: a `CLAUDE.md` carrying a `## Delivery configuration` block (derive org / review bot / cloudId from a sibling repo, don't invent them), a `.gitignore` covering `.claude/`, and a README. That dir is your `REPO_ROOT` so the spec + state file have a home.
-3. **Creating the GitHub remote + first push is outward-facing** — confirm, and prefer to defer it until **after** the user approves the spec. Then run Steps 1–7 normally (feature branch + PR off the new base).
-4. Expect **human-gated external setup** (OAuth clients, deploy endpoints, hosting toggles) that you cannot automate — wire those via documented config placeholders and hand the user a setup checklist at the PR / final gate.
-
 ## Right-size the work (do not pay multi-agent cost you don't need)
 
 Multi-agent fan-out is for diffs that are large, security-sensitive, or touch wire formats — there the isolation and independent judgment demonstrably improve the outcome. Scale the machinery to the change:
