@@ -1,0 +1,10 @@
+# Ignore everything by default
+/*
+
+# ...except what we explicitly track
+!.gitignore
+!README.md
+!skills/
+
+# Never track macOS cruft, even inside tracked dirs
+**/.DS_Store
