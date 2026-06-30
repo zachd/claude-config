@@ -8,8 +8,8 @@ state, sessions, caches, or settings.
 
 ## Skills
 
-- **deliver** — take a Jira ticket, idea, or spec all the way to a review-ready PR.
-- **self-improve** — mine a session for recurring corrections and propose updates to agent instructions/skills.
+- **[deliver](skills/deliver/SKILL.md)** — take a Jira ticket, idea, or spec all the way to a review-ready PR.
+- **[self-improve](skills/self-improve/SKILL.md)** — mine a session for recurring corrections and propose updates to agent instructions/skills.
 
 ## Setup on a new machine
 
