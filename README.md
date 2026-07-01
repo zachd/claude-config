@@ -10,8 +10,10 @@ state, sessions, caches, or settings.
 > anything identifying before committing — employer/org names, real names or
 > non-public emails, internal ticket codes (e.g. `PROJ-123`), project code
 > names, hostnames, URLs, and any other confidential or internal references.
-> Keep commit messages and file contents generic; never leak private context
-> into history.
+> **Never commit session IDs or session URLs** (e.g. `Claude-Session:` /
+> `claude.ai/code/session_…` trailers) — omit them from commit messages
+> entirely. Keep commit messages and file contents generic; never leak private
+> context into history.
 
 ## Skills
 
