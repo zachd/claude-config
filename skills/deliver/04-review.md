@@ -20,6 +20,7 @@
 - Specific and skeptical; cite `file:line`. No praise padding.
 - Each finding is **blocking** (must fix before merge) or **minor** (nit/follow-up).
 - Stay in your lens; don't duplicate the others' scope.
+- **When a finding is one instance of a class** (e.g. an async handler that applies a stale reply, a mutation site missing a guard), name the **sibling sites** that share the hazard so the fix-turn sweeps them together — don't let it be fixed one-at-a-time across rounds.
 
 ## Return
 

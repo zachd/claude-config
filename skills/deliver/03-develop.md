@@ -5,7 +5,7 @@
 ## Mode
 
 - **First run** (no fix instructions): implement the whole spec.
-- **Fix turn** (fix instructions present): `cd` into the given `WORKTREE`, address **only** the listed findings/comments, re-verify, commit. Don't redo unrelated work.
+- **Fix turn** (fix instructions present): `cd` into the given `WORKTREE`, address **only** the listed findings/comments, re-verify, commit. Don't redo unrelated work. **But when a finding names a *pattern/class*** (stale-async-apply, phase-lock, consume-without-save, missing-guard), fix **all sibling sites of that class in one pass** — a point fix just invites the reviewer/bot to surface the next sibling next round.
 
 ## Do
 
@@ -13,6 +13,7 @@
 2. **Worktree (idempotent).** If a `WORKTREE` path was passed, use it. Else check `git worktree list` for one on this branch and reuse it. Else create one off the base branch, named per CLAUDE.md's convention (read it from `## Delivery configuration`; only if absent fall back to a sibling dir `../<root>/<KEY>-<slug>` and warn). Branch name also per CLAUDE.md (e.g. `feature/<KEY>-<slug>`). **All edits stay inside the worktree.** Note: any sibling repos/dependencies the repo declares in CLAUDE.md resolve relative to `REPO_ROOT`, not the worktree.
 3. **Implement** the spec inside the worktree, following CLAUDE.md conventions; reuse the patterns/utilities the spec names. Prefer minimal code; no dead code.
 4. **Verify — Phase 1, read-only only.** Run the repo's verification per CLAUDE.md's verification method (e.g. docker compose up + checks, flash firmware + read logs over wire, run on a connected device + read its logs, the test suite, or for infra `fmt`/`validate`/`plan`).
+   - **Bounded build, definitive result.** Use the repo's non-hanging build path (e.g. a `--no-console` / background-then-poll mode) and drive it to a definitive `BUILD SUCCEEDED`/`FAILED`. Never foreground a console/log stream that never exits, and **never return "waiting on the build"** — report the actual pass/fail. (A hanging build was the single biggest source of wasted turns in past runs.)
    - **Functional, not just compiles.** "It built / installed / launched / connected" is **NOT** a passing Phase-1 verify for any feature with observable runtime behavior — it's a weak proxy that has shipped 100%-broken features. You must **exercise the actual feature and observe real evidence it works** (the expected log markers, command responses, decoded payloads, state transitions). If the change has runtime behavior, build-only ⇒ report `VERIFY: degraded` with the reason, not `pass`.
    - **If the behavior isn't observable, make it observable.** Prefer structured logging the repo's capture channel actually forwards (e.g. on iOS: `os.Logger` captured via `idevicesyslog` — *not* `print()`, which `devicectl --console` may silently drop). Emit greppable markers at the key lifecycle points and assert on them.
    - **If the feature needs triggering, drive it over the wire.** Don't settle for "it would work if a user tapped it." Use the repo's documented mechanism to invoke the function headlessly — a launch argument, a debug command listener reachable over the transport (e.g. an in-app `#if DEBUG` TCP server reached via `iproxy`), a test hook, or a hardware trigger command. Then watch the real result. (See the repo's `verify.md` for the concrete recipe if it has one.)
