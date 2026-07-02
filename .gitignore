@@ -6,5 +6,10 @@
 !README.md
 !skills/
 
+# Track only the constrained /deliver orchestrator agent, not all of agents/
+!/agents/
+/agents/*
+!/agents/deliver-orchestrator.md
+
 # Never track macOS cruft, even inside tracked dirs
 **/.DS_Store
