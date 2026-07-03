@@ -13,7 +13,16 @@ Read `REPO_ROOT/CLAUDE.md` `## Delivery configuration` for the **CI status comma
 
 You may be told this is a **post-retrigger watch** and given a **retrigger timestamp**.
 
-1. `cd` into `WORKTREE`. Poll, e.g. `gh pr checks <n> --watch` or loop `gh pr checks <n> --json name,state,conclusion` with a short sleep. Fetch the configured bot's review: `gh pr view <n> --json reviews,statusCheckRollup` and inline comments via `gh api repos/{owner}/{repo}/pulls/{n}/comments`. The bot's **summary review** (and its `submitted_at` / `commit_id`, needed for the post-retrigger "newer than" check) is most reliably read via `gh api repos/{owner}/{repo}/pulls/{n}/reviews` — `gh pr view --json reviews` can miss it.
+### How to wait (token efficiency)
+
+**Do the waiting in code, not in model turns.** Never poll by looping "run a query → read it → sleep → decide to loop again" across LLM turns — that burns tokens (and minutes) re-concluding "still pending". Block in a single Bash call and only come back to the model once the wait has fired.
+
+- **Checks:** `cd` into `WORKTREE` and run `gh pr checks <n> --watch --fail-fast` in one Bash invocation (foreground with a generous `timeout`, or `run_in_background`). It blocks until every check settles at near-zero token cost — no per-poll turns.
+- **Review-bot settle:** wait for the bot in **one** background Bash `until` loop, not turn-by-turn. Have the loop `sleep 30` around a `gh api repos/{owner}/{repo}/pulls/{n}/reviews` (or `gh pr view <n> --json reviews`) query and exit as soon as the latest bot review's `submitted_at` is newer than the retrigger timestamp (for a post-retrigger watch) or a bot review exists at all (first watch). Bound the iterations so it can't wait forever.
+
+**Spend model turns only on judgment after a wait returns** — classifying the settle (green / bot-only / hard-failure), extracting failing step names + key error lines, and quoting bot comments verbatim. Do not re-invoke the model just to observe "still pending".
+
+1. Fetch the configured bot's review: `gh pr view <n> --json reviews,statusCheckRollup` and inline comments via `gh api repos/{owner}/{repo}/pulls/{n}/comments`. The bot's **summary review** (and its `submitted_at` / `commit_id`, needed for the post-retrigger "newer than" check) is most reliably read via `gh api repos/{owner}/{repo}/pulls/{n}/reviews` — `gh pr view --json reviews` can miss it.
 2. **Settle condition:** no pending/in-progress checks **and** the review bot has posted. **If this is a post-retrigger watch, only settle once a bot review *newer than the retrigger timestamp* exists** — do not classify against the stale prior review (avoids a false `green`).
 3. **Classify:**
    - **green** — all required checks pass and the bot review has no unresolved **blocking** comments. (Nit-level bot comments don't block.)
