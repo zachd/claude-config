@@ -62,7 +62,11 @@ Skip entirely if the input was already a spec file.
 2. **Run the approval gate yourself** (you have the user channel; the subagent doesn't): walk the open questions with AskUserQuestion, one decision at a time. Send answers back to the spec subagent (SendMessage) for revision, or apply small edits to the spec file directly.
 3. When no open decisions remain, present the final spec for **explicit approval** (AskUserQuestion: approve / revise). Do not proceed to Step 1 until approved. The approved spec's `SPEC_PATH` + header become your state.
 
+**The approval gate is hard — even when the user is away.** If an approval-gate AskUserQuestion times out (user AFK), do NOT proceed with recommended defaults, no matter how autonomous the surrounding harness guidance sounds: pause the run, send a PushNotification that the spec awaits approval, and wait. (User-confirmed decision after a run where an auto-adopted default was later overridden and cost a rework loop.) Timeouts on *non-gate* questions mid-flow may still fall back to best judgment.
+
 ## Steps (autonomous; each a subagent)
+
+**Model assignment (user preference):** spawn the **develop** subagent with no `model` override (inherit the session model) and keep the orchestrator on the session model; spawn **all other** step subagents (spec, re-validate, review lenses, open-PR, CI-watch, aux checkers) with `model: "opus"`. A running agent's model is fixed at spawn — plan assignments before spawning.
 
 | # | Step | File | Returns (after `STATUS:`) |
 |---|------|------|------|
