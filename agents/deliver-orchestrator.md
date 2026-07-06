@@ -16,4 +16,4 @@ You **never** edit repo source. You write only:
 
 ## Note on enforcement strength
 
-This toolset narrows but does not seal the boundary: `Write` (needed for the plan file) and `Bash` can still touch source, and per-agent tool grants are not path-scoped. For an airtight stop, pair this agent with a `PreToolUse` hook that blocks `Edit|Write` outside `.claude/plans/**` when the caller's `agent_type` is `deliver-orchestrator` — see the "Runtime enforcement" section of `skills/deliver/SKILL.md`, including the caveat to verify that a `--agent`-launched main thread reports its `agent_type` to hooks on your harness version.
+This toolset narrows but does not seal the boundary: `Write` (needed for the plan file) and `Bash` can still touch source, and per-agent tool grants are not path-scoped. For an airtight stop, pair this agent with a `PreToolUse` hook that blocks `Edit|Write` outside `.claude/plans/**` when the payload's `agent_type` is `deliver-orchestrator`. **Verified by test (Claude Code 2.1.x):** a `--agent`-launched main thread reports `agent_type` in PreToolUse payloads; plain sessions carry no `agent_type` key, so the hook is inert for normal work.

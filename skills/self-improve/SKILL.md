@@ -47,8 +47,10 @@ Split into two buckets:
 **Rules for good entries:**
 - Imperative voice ("Check X before Y", not "We learned that X").
 - General principles over narrow wording — avoid exact error strings or one-off paths unless the mistake only recurs in that exact form.
-- Concrete and actionable; no narrative. Keep to 1–2 lines.
-- Place near related bullets so the agent sees it in context. Keep the instruction file tight.
+- Concrete and actionable; no narrative. Keep to 1–2 lines. Capture the tripwire, not the incident — no war stories.
+- Place near related bullets so the agent sees it in context.
+- **Only three kinds of things are worth writing** (a capable model handles the rest unprompted): a **contract** (format/interface another agent depends on), a **non-obvious environment fact** (something no intelligence can derive — a harness quirk, a shadowing rule, a flaky API), or a **safety gate** (irreversible-action tripwire). If a lesson is "the model should have used better judgment", improving the prompt won't fix it — drop it.
+- **Replace, don't accrete.** Before appending, look for an existing rule this refines — tighten that one instead. Target net-zero growth: an addition should usually be paid for by compressing or deleting something else. Instructions compete for the model's attention; every line you add dilutes the others.
 
 Apply certain changes immediately, then present uncertain ones via **AskUserQuestion**. After all edits, read back the modified files to confirm, and offer to commit with a message like `chore: self-improve — update agent instructions from session learnings`.
 
