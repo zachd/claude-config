@@ -44,6 +44,7 @@ How to prove it works end-to-end on this repo's system (from CLAUDE.md's verific
 ```
 STATUS: pass | blocked
 PLAN_PATH: <absolute path to the draft plan file>
+SLUG: <the slug you minted — also in the header; the orchestrator adopts it>
 TITLE: <plan title>
 TICKET: <KEY or none>
 SUMMARY: <2-3 sentences of what will be built>

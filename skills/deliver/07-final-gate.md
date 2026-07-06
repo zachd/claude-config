@@ -14,15 +14,15 @@ CI is green. Close the verification loop, hand off to the human, and reap the wo
    - The **PR URL**, what passed (checks + review bot, or "no CI on this repo"), and the verification summary.
    - That it is **awaiting their merge** — `/deliver` does not merge. Per repo policy, merging is the human's call.
    - **Any human-gated steps the repo declares** (e.g. run `terraform plan` and check the destroy count, then `apply`; trigger a deploy; run a migration). Spell out exactly what to run and check before they merge/apply — `/deliver` never ran these.
-4. **Defer cleanup; keep the run open.** Set the state file's `Step: awaiting-merge` (and leave the master task `in_progress` if Task tools exist). The worktree must survive until the PR merges.
+4. **Defer cleanup; keep the run open** (leave the master task `in_progress` if Task tools exist). The worktree must survive until the PR merges.
 
 ## Deferred cleanup (runs on a later invocation, or when the user says "merged")
 
-Before starting any new work, the orchestrator reads the state file and checks the PR:
-- `gh pr view <PrNumber> --json state,mergedAt` — if **merged**:
-  1. `git worktree remove <Worktree>` (add `--force` only if it refuses due to untracked build artifacts) and `git branch -D <Branch>`. **But if this session is itself running inside `<Worktree>`, do NOT remove it** — you'd be deleting your own checkout (and the remove fails). Mark the state complete, report that cleanup is deferred, and reap it from a session started in `REPO_ROOT` (or another worktree).
+Before starting any new work, the orchestrator sweeps `.claude/worktrees/` — for each worktree, find its branch's PR:
+- `gh pr view <branch> --json state,mergedAt` (or `gh pr list --head <branch>`) — if **merged**:
+  1. `git worktree remove <Worktree>` (add `--force` only if it refuses due to untracked build artifacts) and `git branch -D <Branch>`. **But if this session is itself running inside `<Worktree>`, do NOT remove it** — you'd be deleting your own checkout (and the remove fails). Report that cleanup is deferred, and reap it from a session started in `REPO_ROOT` (or another worktree).
   2. **Close the ticket.** `getTransitionsForJiraIssue` → `transitionJiraIssue` to the repo's terminal status (from `## Delivery configuration`; default **Done**), then `addCommentToJiraIssue` with a brief closing comment: what shipped (PR link), verification outcome, follow-ups. If the transition tools are unavailable, tell the user the ticket still needs closing.
-  3. Mark the run complete (state file `Step: done`; master task `completed` if present).
+  3. Mark the run complete (master task `completed` if present).
   4. Tell the user the worktree/branch were reaped and the ticket closed.
 - If **not merged**, leave everything as-is.
 
