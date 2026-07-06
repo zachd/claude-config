@@ -16,7 +16,7 @@ Given: `WORKTREE`, base branch, ticket key. Your one job is to run your assigned
 
 ## Steps
 
-1. `cd` into `WORKTREE` and stay there — the skill reviews the current branch's diff, so every command must run inside the worktree. Sanity-check the diff exists: `git diff <base>...HEAD --stat` (base is in the spec header / CLAUDE.md).
+1. `cd` into `WORKTREE` and stay there — the skill reviews the current branch's diff, so every command must run inside the worktree. Sanity-check the diff exists: `git diff <base>...HEAD --stat` (base is in the plan header / CLAUDE.md).
 2. Invoke the Skill tool with your assigned skill and let it run to completion.
 3. Translate each finding it reports into the deliver format, keeping the skill's own wording (don't editorialize, soften, or filter):
    - `code-review`: correctness findings — anything that would ship a bug — → **blocking**; reuse/simplification/efficiency cleanups → **minor**; treat `PLAUSIBLE` correctness verdicts as blocking too (the fix turn or re-review will settle them).

@@ -6,7 +6,7 @@ CI is green. Close the verification loop, hand off to the human, and reap the wo
 
 ## Do
 
-1. **Decide if Phase 2 is needed.** Read the spec's `## Files to touch` / `TOUCHES_UI` flag.
+1. **Decide if Phase 2 is needed.** Read the plan's `## Files to touch` / `TOUCHES_UI` flag.
    - **No UI touched** (pure data/protocol/logic) → Phase-1 evidence is sufficient; **auto-skip** Phase 2. Say so.
    - **UI touched** → run **verify Phase 2**: ask the user to confirm the UI renders and behaves as expected, summarizing the Phase-1 findings and what to look at. Offer clear options (works / has an issue / skip — logs sufficient). Use the Phase-2 wording from the repo's verify recipe (its `verifier-*` skill under `.claude/skills/`) if it has one.
 2. **If the user reports a UI issue** → dispatch a Develop fix turn (Step 3) with the specifics + existing `WORKTREE`, then re-run Review (4) → push (5) → CI (6) → back here. Respect the loop cap.

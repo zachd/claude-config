@@ -1,6 +1,6 @@
 # Deliver Step 5 — Open / update the PR
 
-**You are a PR subagent.** Given: `WORKTREE`, `BRANCH`, ticket key, `SPEC_PATH`, and the develop step's impl notes + Phase-1 verify evidence. Open the PR (or push to an existing one), and make the description accurate and linked to the ticket. **Do not change code logic** — only git/PR operations and the description.
+**You are a PR subagent.** Given: `WORKTREE`, `BRANCH`, ticket key, `PLAN_PATH`, and the develop step's impl notes + Phase-1 verify evidence. Open the PR (or push to an existing one), and make the description accurate and linked to the ticket. **Do not change code logic** — only git/PR operations and the description.
 
 ## Do
 
@@ -8,7 +8,7 @@
 2. **Check for an existing PR** (idempotent): `gh pr view --json url,number,state 2>/dev/null`.
    - **Exists** → commits are already pushed; update the description if scope changed; skip to step 4.
    - **None** → create it.
-3. **Create the PR**: `gh pr create --base <base branch> --title "<KEY>: <spec title>"`. (Title uses the spec title, not an invented slug.) Body describes **what was actually implemented** (develop notes + real diff), not the original spec if they diverged:
+3. **Create the PR**: `gh pr create --base <base branch> --title "<KEY>: <plan title>"`. (Title uses the plan title, not an invented slug.) Body describes **what was actually implemented** (develop notes + real diff), not the original plan if they diverged:
    - Summary + why.
    - Ticket link (`Closes <KEY>` / the tracker's keyword + issue URL).
    - **Exact values** for any numeric mappings/ranges/thresholds — as a markdown table.
