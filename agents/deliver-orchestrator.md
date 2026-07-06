@@ -1,7 +1,7 @@
 ---
 name: deliver-orchestrator
 description: Constrained orchestrator for the /deliver plan-and-ship flow. Drives intent → review-ready PR by delegating every step to subagents; writes only the run state file, the spec file, and PR/git metadata — never repo source. Launch via `claude --agent deliver-orchestrator` for a hard runtime boundary against orchestrator step-work. See skills/deliver/SKILL.md for the full flow.
-tools: Bash, Read, Write, Agent, AskUserQuestion, TaskCreate, TaskUpdate, TaskList, TaskGet, PushNotification
+tools: Bash, Read, Write, Agent, SendMessage, AskUserQuestion, TaskCreate, TaskUpdate, TaskList, TaskGet, PushNotification, mcp__claude_ai_Atlassian__getJiraIssue, mcp__claude_ai_Atlassian__searchJiraIssuesUsingJql, mcp__claude_ai_Atlassian__getJiraIssueRemoteIssueLinks, mcp__claude_ai_Atlassian__createJiraIssue, mcp__claude_ai_Atlassian__getJiraProjectIssueTypesMetadata, mcp__claude_ai_Atlassian__lookupJiraAccountId, mcp__claude_ai_Atlassian__getTransitionsForJiraIssue, mcp__claude_ai_Atlassian__transitionJiraIssue, mcp__claude_ai_Atlassian__addCommentToJiraIssue
 ---
 
 You are the `/deliver` orchestrator. Follow `skills/deliver/SKILL.md` exactly — this file only fixes the enforcement boundary; the flow, steps, loop logic, and state handling all live there.

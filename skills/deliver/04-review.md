@@ -1,37 +1,37 @@
-# Deliver Step 4 — Review (one lens per agent)
+# Deliver Step 4 — Review (native skills only, one skill per agent)
 
-**You are one of three parallel review subagents.** The orchestrator told you your **lens** — exactly one of `security`, `simplification`, `correctness`. Review **only** through that lens. Given: `WORKTREE`, ticket key, `SPEC_PATH`. Review the **diff**, unbiased — you didn't write this code.
+**You are one of the parallel review subagents.** The orchestrator told you your **assigned native skill** — exactly one of:
 
-## Setup
+- **`code-review`** (with an effort level: `medium` for small diffs, `high` for multi-file / security-sensitive / wire-format / large diffs) — correctness bugs + reuse/simplification/efficiency cleanups.
+- **`security-review`** — security review of the pending changes on the branch.
 
-1. `cd` into `WORKTREE`. Diff against the base branch: `git diff <base>...HEAD` (base is in the spec header / CLAUDE.md).
-2. **Input is lens-conditional — to avoid anchoring on what the author intended:**
-   - **correctness lens:** read the spec's `## Requirements / Acceptance criteria` (you must judge against intent) and the spec's `## Verification` section. Do **not** read the develop step's impl notes (the author's narrative of *how* they solved it).
-   - **security / simplification lenses:** do **NOT** read the spec narrative, acceptance criteria, or impl notes. Review the diff and surrounding code cold — your judgment must not be primed by the author's framing.
-3. Read surrounding code for context — but report only on what the diff changes.
+Given: `WORKTREE`, base branch, ticket key. Your one job is to run your assigned skill on the worktree's diff and relay its findings — you add no review judgment of your own.
 
-## Your lens
+## Hard rule — your assigned native skill is the only review mechanism
 
-- **security** — input validation; injection; unsafe parsing of device/network/binary payloads; secrets/credentials in code or logs; auth/permission gaps; unsafe concurrency; resource leaks. Verify wire-format handling against any spec the change cites.
-- **simplification** — dead code, duplication, reinvented utilities (name the existing one to reuse), over-engineering, unnecessary state/abstraction; anything that could be fewer lines without losing clarity. Honor CLAUDE.md's "prefer minimal code".
-- **correctness** — does it meet the acceptance criteria? Logic bugs, edge cases, off-by-one, stale captured state in deferred closures, missing callback forwarding, threading violations (background→main), regressions in adjacent paths. Cross-check CLAUDE.md's known-pitfall notes. **Independently judge the develop step's Phase-1 verify evidence:** does the log/test output it reported actually demonstrate the acceptance criteria, or was it self-graded optimistically? You are independent of the author — flag verify evidence that doesn't support "it works" as a blocking finding.
+- Invoke **your assigned skill via the Skill tool** (for `code-review`, pass the effort level as its args). That skill performs the entire review.
+- Do **not** review the diff ad-hoc, add findings the skill didn't report, run the *other* review skill (that's the parallel agent's job), spawn your own review agents, or re-run at a different effort to "double-check".
+- Never pass `--fix` or `--comment` — fixes are a Develop turn dispatched by the orchestrator, and PR comments are Step 5/6's job.
+- If the Skill tool or your assigned skill is unavailable, return `STATUS: blocked` with the error. Do **not** fall back to reviewing the diff yourself.
 
-## Rules
-- Specific and skeptical; cite `file:line`. No praise padding.
-- Each finding is **blocking** (must fix before merge) or **minor** (nit/follow-up).
-- Stay in your lens; don't duplicate the others' scope.
-- **When a finding is one instance of a class** (e.g. an async handler that applies a stale reply, a mutation site missing a guard), name the **sibling sites** that share the hazard so the fix-turn sweeps them together — don't let it be fixed one-at-a-time across rounds.
+## Steps
+
+1. `cd` into `WORKTREE` and stay there — the skill reviews the current branch's diff, so every command must run inside the worktree. Sanity-check the diff exists: `git diff <base>...HEAD --stat` (base is in the spec header / CLAUDE.md).
+2. Invoke the Skill tool with your assigned skill and let it run to completion.
+3. Translate each finding it reports into the deliver format, keeping the skill's own wording (don't editorialize, soften, or filter):
+   - `code-review`: correctness findings — anything that would ship a bug — → **blocking**; reuse/simplification/efficiency cleanups → **minor**; treat `PLAUSIBLE` correctness verdicts as blocking too (the fix turn or re-review will settle them).
+   - `security-review`: exploitable or plausibly exploitable vulnerabilities → **blocking**; hardening suggestions / informational notes → **minor**.
 
 ## Return
 
 ```
 STATUS: pass
-LENS: security | simplification | correctness
+SKILL: code-review | security-review
 VERDICT: clean | findings
 FINDINGS:
 - [blocking|minor] <file:line> — <issue> — <concrete fix>
 ```
 
-(`STATUS` is always `pass` — it means "the review ran"; the verdict carries the judgment.) If clean, say so with an empty findings list.
+(`STATUS: pass` means "the review ran"; use `blocked` only when the skill could not run. If clean, say so with an empty findings list.)
 
-**Deliver this block by calling SendMessage to the orchestrator** (`team-lead` / `main`) — your plain-text output is NOT relayed back, so without SendMessage the orchestrator only sees an idle ping and the review stalls.
+**Deliver this block by calling SendMessage to the orchestrator** — use the addressable name given in your spawn prompt (typically `team-lead` / `main`; under a constrained launch it may be `deliver-orchestrator`). Your plain-text output is NOT relayed back, so without SendMessage the orchestrator only sees an idle ping and the review stalls.
