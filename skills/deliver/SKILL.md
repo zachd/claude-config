@@ -52,7 +52,7 @@ For a hard runtime boundary, launch via `claude --agent deliver-orchestrator` pl
 
 ## Steps
 
-**Models:** plan, develop, and reviewers inherit the session model (reviewers never weaker than the developer). Create-issue, re-validate, open-PR → `model: "sonnet"`. CI-watch → `model: "opus"`. Fixed at spawn.
+**Models:** plan, develop, reviewers, CI-watch → `model: "opus"` (Opus 5 — the strong model, pinned rather than inherited so a weaker session model can't downgrade them; this also keeps reviewers never weaker than the developer). Create-issue, re-validate, open-PR → `model: "sonnet"`. Fixed at spawn.
 
 | # | Step | File | Returns after `STATUS:` |
 |---|------|------|------|
