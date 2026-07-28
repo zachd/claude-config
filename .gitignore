@@ -11,5 +11,10 @@
 /agents/*
 !/agents/deliver-orchestrator.md
 
+# Same for hooks/: only the orchestrator write guard, not local hooks
+!/hooks/
+/hooks/*
+!/hooks/deliver-orchestrator-guard.sh
+
 # Never track macOS cruft, even inside tracked dirs
 **/.DS_Store
