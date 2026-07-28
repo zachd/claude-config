@@ -12,12 +12,13 @@ Given: `WORKTREE`, base branch, ticket key. Your one job is to run your assigned
 - Invoke **your assigned skill via the Skill tool** (for `code-review`, pass the effort level as its args). That skill performs the entire review.
 - Do **not** review the diff ad-hoc, add findings the skill didn't report, run the *other* review skill (that's the parallel agent's job), spawn your own review agents, or re-run at a different effort to "double-check".
 - Never pass `--fix` or `--comment` — fixes are a Develop turn dispatched by the orchestrator, and PR comments are Step 5/6's job.
-- If the Skill tool or your assigned skill is unavailable, return `STATUS: blocked` with the error. Do **not** fall back to reviewing the diff yourself.
+- Some review skills are **user-invocable only** (`disable-model-invocation` — `code-review` is one), so the Skill tool refuses them for any subagent. That is expected, not a failure: run the same native skill through the CLI instead — `claude -p "/code-review <effort>" --model opus` from the worktree — and relay its output. It can take 15+ minutes on a large diff; report progress rather than assuming a hang.
+- Only if BOTH the Skill tool and the CLI path fail, return `STATUS: blocked` with the error, and tell the orchestrator the user can invoke the skill interactively. Do **not** fall back to reviewing the diff yourself, and never let a blocked review pass silently — a PR reaching the review bot with no code review is worse than a stalled flow.
 
 ## Steps
 
 1. `cd` into `WORKTREE` and stay there — the skill reviews the current branch's diff, so every command must run inside the worktree. Sanity-check the diff exists: `git diff <base>...HEAD --stat` (base is in the plan header / CLAUDE.md).
-2. Invoke the Skill tool with your assigned skill and let it run to completion.
+2. Invoke your assigned skill and let it run to completion: use the Skill tool when allowed, otherwise use the documented CLI path for a user-invocable-only skill.
 3. Translate each finding it reports into the deliver format, keeping the skill's own wording (don't editorialize, soften, or filter):
    - `code-review`: correctness findings — anything that would ship a bug — → **blocking**; reuse/simplification/efficiency cleanups → **minor**; treat `PLAUSIBLE` correctness verdicts as blocking too (the fix turn or re-review will settle them).
    - `security-review`: exploitable or plausibly exploitable vulnerabilities → **blocking**; hardening suggestions / informational notes → **minor**.
