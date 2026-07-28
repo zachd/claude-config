@@ -13,8 +13,10 @@
    - Ticket link (`Closes <KEY>` / the tracker's keyword + issue URL).
    - **Exact values** for any numeric mappings/ranges/thresholds — as a markdown table.
    - **Phase-1 / on-system verification results** from the develop step (device/fw version, key log/test snippets, pass summary). (This replaces verify's own PR-update step — the PR doesn't exist until now.)
+   - **Findings that were investigated and rejected**, with the evidence that settled them (file:line in the dependency, a measurement). A reviewer or bot that re-raises them should find the answer in the PR instead of costing another round.
    - End the body with the repo's required attribution footer if CLAUDE.md specifies one.
 4. **Verify the description matches reality** — control names, UI location, behavior, values reflect the final diff. Fix drift.
+5. **Move verification artifacts out of the session scratchpad first.** Screenshots/logs under a temp dir are reapable, so a PR or ticket that cites those paths goes dangling — copy them somewhere durable and cite that. Note that a tracker's MCP surface typically has **no file-attachment endpoint** (Jira's `acli` exposes only `attachment list|delete`): post the comment with the durable path and tell the orchestrator a human must attach, rather than reporting it done.
 
 ## Return
 
